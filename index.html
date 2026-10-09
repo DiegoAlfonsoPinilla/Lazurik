@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lazurik — Animación 2D</title>
+<link rel="manifest" href="manifest.json"><link rel="stylesheet" href="style.css"></head>
+<body>
+<header>
+ <b class="logo">Lazurik</b>
+ <button id="bNew">Nuevo</button><button id="bSave">Guardar cifrado</button><button id="bLoad">Recuperar</button>
+ <button id="bOpen">Abrir .laz</button><button id="bExp">Exportar .laz</button><button id="bPng">PNG</button>
+ <input type="file" id="file" accept=".laz" hidden>
+ <span id="stat"></span>
+</header>
+<aside id="tools">
+ <button data-t="brush" class="on" title="Pincel (B)">Pincel</button>
+ <button data-t="eraser" title="Borrador (E)">Borrador</button>
+ <label>Color<input type="color" id="color" value="#1c2a3a"></label>
+ <label>Grosor <output id="oSize">6</output><input type="range" id="size" min="1" max="80" value="6"></label>
+ <label>Opacidad <output id="oAlpha">100</output><input type="range" id="alpha" min="5" max="100" value="100"></label>
+ <button id="bUndo" title="Ctrl+Z">Deshacer</button>
+</aside>
+<main><div id="stage"><canvas id="view" width="960" height="540"></canvas></div></main>
+<aside id="layers">
+ <div class="row"><b>Capas</b><button id="lAdd">+ Capa</button></div>
+ <ul id="list"></ul>
+ <label>Fusión<select id="blend"><option value="source-over">Normal</option><option value="multiply">Multiplicar</option><option value="screen">Trama</option><option value="overlay">Superponer</option><option value="darken">Oscurecer</option><option value="lighten">Aclarar</option></select></label>
+ <label>Opacidad de capa <output id="oLo">100</output><input type="range" id="lo" min="0" max="100" value="100"></label>
+ <b>Cebollado</b>
+ <label class="inl"><input type="checkbox" id="onion" checked> Ver cuadros vecinos</label>
+ <label>Color<input type="color" id="oc" value="#ff5a7a"></label>
+ <label>Opacidad <output id="oOo">30</output><input type="range" id="oo" min="5" max="80" value="30"></label>
+</aside>
+<footer>
+ <div class="row"><button id="bPlay">Reproducir</button><button id="bPrev">◀</button><button id="bNext">▶</button>
+ <label class="inl">FPS <input type="number" id="fps" value="12" min="1" max="60"></label>
+ <button id="fAdd">+ Cuadro</button><button id="fDup">Duplicar</button><button id="fDel">Eliminar</button></div>
+ <div id="frames"></div>
+</footer>
+<script src="app.js"></script>
+</body></html>
