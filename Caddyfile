@@ -1,0 +1,14 @@
+# DOMAIN vacío => HTTP en puerto 80 (pruebas locales).
+# DOMAIN=lazurik.midominio.com => HTTPS automático (necesario para cifrado y PWA).
+{$DOMAIN::80} {
+	root * /srv
+	encode zstd gzip
+	file_server
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy no-referrer
+		Content-Security-Policy "default-src 'self'; img-src 'self' data: blob:; connect-src 'self' data: blob:; object-src 'none'; base-uri 'self'"
+	}
+	@nocache path / /index.html /sw.js /app.js /style.css
+	header @nocache Cache-Control "no-cache"
+}
