@@ -16,6 +16,15 @@ Requiere un servidor con Docker, un dominio apuntando a su IP y los puertos 80 y
 DOMAIN=lazurik.tudominio.com docker compose up --build -d
 ```
 
+## Estructura
+```
+index.html · manifest.json · sw.js
+src/css   estilos (style.css, icons.css)
+src/js    app.js (editor) · icons.js · memory.js (virtualización) · storage.js (cifrado .laz) · pwa.js
+assets    logo.svg
+Dockerfile · docker-compose.yml · Caddyfile
+```
+
 ## Atajos
 `B` pincel · `E` borrador · `Espacio` reproducir · `←/→` cuadros · `Ctrl+Z` deshacer
 

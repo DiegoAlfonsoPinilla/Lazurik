@@ -7,8 +7,8 @@
 	header {
 		X-Content-Type-Options nosniff
 		Referrer-Policy no-referrer
-		Content-Security-Policy "default-src 'self'; img-src 'self' data: blob:; connect-src 'self' data: blob:; object-src 'none'; base-uri 'self'"
+		Content-Security-Policy "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://hercules-cdn.com; connect-src 'self' data: blob: https://cdn.jsdelivr.net; worker-src 'self' blob:; object-src 'none'; base-uri 'self'"
 	}
-	@nocache path / /index.html /sw.js /app.js /style.css
+	@nocache path / /index.html /sw.js /src/*
 	header @nocache Cache-Control "no-cache"
 }

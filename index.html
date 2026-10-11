@@ -1,40 +1,539 @@
-<!doctype html>
-<html lang="es"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Lazurik — Animación 2D</title>
-<link rel="manifest" href="manifest.json"><link rel="stylesheet" href="style.css"></head>
-<body>
-<header>
- <b class="logo">Lazurik</b>
- <button id="bNew">Nuevo</button><button id="bSave">Guardar cifrado</button><button id="bLoad">Recuperar</button>
- <button id="bOpen">Abrir .laz</button><button id="bExp">Exportar .laz</button><button id="bPng">PNG</button>
- <input type="file" id="file" accept=".laz" hidden>
- <span id="stat"></span>
-</header>
-<aside id="tools">
- <button data-t="brush" class="on" title="Pincel (B)">Pincel</button>
- <button data-t="eraser" title="Borrador (E)">Borrador</button>
- <label>Color<input type="color" id="color" value="#1c2a3a"></label>
- <label>Grosor <output id="oSize">6</output><input type="range" id="size" min="1" max="80" value="6"></label>
- <label>Opacidad <output id="oAlpha">100</output><input type="range" id="alpha" min="5" max="100" value="100"></label>
- <button id="bUndo" title="Ctrl+Z">Deshacer</button>
-</aside>
-<main><div id="stage"><canvas id="view" width="960" height="540"></canvas></div></main>
-<aside id="layers">
- <div class="row"><b>Capas</b><button id="lAdd">+ Capa</button></div>
- <ul id="list"></ul>
- <label>Fusión<select id="blend"><option value="source-over">Normal</option><option value="multiply">Multiplicar</option><option value="screen">Trama</option><option value="overlay">Superponer</option><option value="darken">Oscurecer</option><option value="lighten">Aclarar</option></select></label>
- <label>Opacidad de capa <output id="oLo">100</output><input type="range" id="lo" min="0" max="100" value="100"></label>
- <b>Cebollado</b>
- <label class="inl"><input type="checkbox" id="onion" checked> Ver cuadros vecinos</label>
- <label>Color<input type="color" id="oc" value="#ff5a7a"></label>
- <label>Opacidad <output id="oOo">30</output><input type="range" id="oo" min="5" max="80" value="30"></label>
-</aside>
-<footer>
- <div class="row"><button id="bPlay">Reproducir</button><button id="bPrev">◀</button><button id="bNext">▶</button>
- <label class="inl">FPS <input type="number" id="fps" value="12" min="1" max="60"></label>
- <button id="fAdd">+ Cuadro</button><button id="fDup">Duplicar</button><button id="fDel">Eliminar</button></div>
- <div id="frames"></div>
-</footer>
-<script src="app.js"></script>
-</body></html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LAZURIK – Dibuja · Anima · Crea</title>
+  <link rel="stylesheet" href="src/css/style.css">
+  <link rel="stylesheet" href="src/css/icons.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#B8A7E8">
+  <script src="https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.js" defer></script>
+</head>
+<body class="theme-light">
+
+<!-- ══════ SPLASH SCREEN ══════ -->
+<div id="splash-screen">
+  <div class="splash-particles"></div>
+  <div class="splash-content">
+    <div class="splash-logo-wrap">
+      <img src="https://hercules-cdn.com/file_RwQNRD6iGloejM8spBC6xOYv" alt="Lazurik" class="splash-logo">
+    </div>
+    <div class="splash-brand">LAZURIK</div>
+    <div class="splash-slogan">Dibuja · Anima · Crea</div>
+    <div class="splash-mascot">
+      <div class="sm-body">
+        <div class="sm-eye sm-l"></div>
+        <div class="sm-eye sm-r"></div>
+        <div class="sm-mouth"></div>
+        <div class="sm-blush sm-bl-l"></div>
+        <div class="sm-blush sm-bl-r"></div>
+        <div class="sm-arm sm-arm-l"></div>
+        <div class="sm-arm sm-arm-r"></div>
+      </div>
+    </div>
+    <button id="btn-comenzar" class="splash-btn">COMENZAR</button>
+    <label class="skip-label">
+      <input type="checkbox" id="skip-splash-check">
+      No mostrar esta pantalla de nuevo
+    </label>
+  </div>
+</div>
+
+<!-- ══════ START SCREEN ══════ -->
+<div id="start-screen" class="hidden">
+  <div class="start-header">
+    <img src="https://hercules-cdn.com/file_RwQNRD6iGloejM8spBC6xOYv" alt="Lazurik" class="start-logo">
+    <div>
+      <div class="start-brand">LAZURIK</div>
+      <div class="start-slogan">Dibuja · Anima · Crea</div>
+    </div>
+  </div>
+  <div class="start-card">
+    <h2 class="start-title">¿Qué quieres crear?</h2>
+    <div class="start-options">
+      <button class="start-opt" data-start="dibujo">
+        <span class="so-icon" data-icon="pencil"></span>
+        <span class="so-label">Nuevo dibujo</span>
+        <span class="so-desc">Ilustración estática</span>
+      </button>
+      <button class="start-opt" data-start="animacion">
+        <span class="so-icon" data-icon="film"></span>
+        <span class="so-label">Nueva animación</span>
+        <span class="so-desc">Fotograma a fotograma</span>
+      </button>
+      <button class="start-opt" data-start="abrir">
+        <span class="so-icon" data-icon="folder"></span>
+        <span class="so-label">Abrir proyecto</span>
+        <span class="so-desc">Archivo .laz cifrado</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ EDITOR ══════ -->
+<div id="editor-wrap" class="hidden">
+
+  <header id="navbar">
+    <div class="logo-area">
+      <img src="https://hercules-cdn.com/file_RwQNRD6iGloejM8spBC6xOYv" alt="Lazurik" class="logo-img">
+      <div class="logo-texts">
+        <span class="logo-name">LAZURIK</span>
+        <span class="logo-slogan">Dibuja · Anima · Crea</span>
+      </div>
+    </div>
+    <nav id="main-menu">
+      <div class="menu-item">Archivo
+        <div class="dropdown">
+          <button data-action="nuevo">Nuevo proyecto</button>
+          <button data-action="guardar">Guardar PNG</button>
+          <button data-action="guardar-jpg">Guardar JPG</button>
+          <hr>
+          <button data-action="guardar-proyecto">Guardar proyecto cifrado (.laz)</button>
+          <button data-action="abrir-proyecto">Abrir proyecto (.laz)</button>
+          <button data-action="recuperar">Recuperar último guardado</button>
+        </div>
+      </div>
+      <div class="menu-item">Editar
+        <div class="dropdown">
+          <button data-action="deshacer">Deshacer &nbsp;Ctrl+Z</button>
+          <button data-action="rehacer">Rehacer &nbsp;Ctrl+Y</button>
+          <hr>
+          <button data-action="limpiar-capa">Limpiar capa activa</button>
+        </div>
+      </div>
+      <div class="menu-item">Ver
+        <div class="dropdown">
+          <button data-action="zoom-in">Zoom +</button>
+          <button data-action="zoom-out">Zoom −</button>
+          <button data-action="zoom-fit">Ajustar al lienzo</button>
+          <hr>
+          <button data-action="fullscreen">Pantalla completa</button>
+        </div>
+      </div>
+      <div class="menu-item">Proyecto
+        <div class="dropdown">
+          <button data-action="propiedades">Propiedades del lienzo</button>
+          <button data-action="expandir">Expandir lienzo</button>
+          <button data-action="fps-menu">Cambiar FPS</button>
+        </div>
+      </div>
+      <div class="menu-item">Exportar
+        <div class="dropdown">
+          <button data-action="export-png">Exportar PNG</button>
+          <button data-action="export-jpg">Exportar JPG</button>
+          <button data-action="export-gif">Exportar GIF animado</button>
+        </div>
+      </div>
+    </nav>
+    <div class="nav-right">
+      <span id="mem-badge" title="Memoria: cuadros en RAM y virtualizados"></span>
+      <span id="zoom-display">100%</span>
+      <button id="btn-color-guide" class="nav-icon-btn" title="Guía de colores"><span data-icon="palette"></span></button>
+      <button id="btn-settings-open" class="nav-icon-btn" title="Configuración"><span data-icon="gear"></span></button>
+      <button id="btn-assistant-toggle" class="btn-assistant-nav">
+        <span data-icon="chat"></span> Lazurik
+      </button>
+      <button id="btn-fullscreen-nav" class="nav-icon-btn" title="Pantalla completa"><span data-icon="expand"></span></button>
+    </div>
+  </header>
+
+  <div id="app-body">
+
+    <aside id="left-sidebar">
+      <div id="tools-list"></div>
+      <div class="sidebar-sep"></div>
+      <div class="sidebar-color-block">
+        <div id="color-fg-swatch" title="Color activo"></div>
+        <input type="color" id="color-native" value="#B8A7E8" tabindex="-1">
+      </div>
+    </aside>
+
+    <div id="center-area">
+      <div id="props-bar">
+        <span id="tool-name-label">Pincel</span>
+        <div class="pb-sep"></div>
+        <div id="props-bar-content"></div>
+        <div class="pb-right">
+          <button class="pb-btn" id="pb-undo" title="Ctrl+Z"><span data-icon="undo"></span></button>
+          <button class="pb-btn" id="pb-redo" title="Ctrl+Y"><span data-icon="redo"></span></button>
+        </div>
+      </div>
+
+      <div id="canvas-viewport">
+        <div id="canvas-wrap">
+          <canvas id="main-canvas"></canvas>
+          <canvas id="onion-canvas"></canvas>
+          <canvas id="selection-canvas"></canvas>
+          <div id="eraser-cursor"></div>
+        </div>
+      </div>
+
+      <div id="timeline">
+        <div class="tl-controls">
+          <button class="tl-btn" id="tl-first"><span data-icon="first"></span></button>
+          <button class="tl-btn" id="tl-prev"><span data-icon="prev"></span></button>
+          <button class="tl-btn play-btn" id="tl-play"><span data-icon="play"></span></button>
+          <button class="tl-btn" id="tl-next"><span data-icon="next"></span></button>
+          <button class="tl-btn" id="tl-last"><span data-icon="last"></span></button>
+          <div class="tl-vsep"></div>
+          <span class="fps-label">FPS</span>
+          <select id="fps-select">
+            <option value="4">4</option>
+            <option value="8">8</option>
+            <option value="12" selected>12</option>
+            <option value="24">24</option>
+            <option value="30">30</option>
+          </select>
+          <div class="tl-vsep"></div>
+          <button class="tl-btn" id="tl-dup" title="Duplicar fotograma"><span data-icon="copy"></span></button>
+          <button class="tl-btn" id="tl-del-frame" title="Eliminar fotograma"><span data-icon="trash"></span></button>
+          <div class="tl-vsep"></div>
+          <button class="tl-btn tl-onion-btn" id="btn-onion-toggle" title="Piel de cebolla"><span data-icon="onion"></span></button>
+        </div>
+        <div id="frames-strip"></div>
+        <span id="frame-counter">1/1</span>
+      </div>
+
+      <div id="onion-panel" class="hidden">
+        <div class="onion-row">
+          <span class="onion-title">Piel de cebolla</span>
+          <label class="toggle-sw">
+            <input type="checkbox" id="onion-enabled">
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+        <div id="onion-controls" class="onion-off">
+          <div class="onion-row">
+            <span class="onion-lbl">Anteriores</span>
+            <div class="onion-steps" id="onion-prev-btns">
+              <button class="step-btn active" data-val="0">0</button>
+              <button class="step-btn" data-val="1">1</button>
+              <button class="step-btn" data-val="2">2</button>
+              <button class="step-btn" data-val="3">3</button>
+            </div>
+          </div>
+          <div class="onion-row">
+            <span class="onion-lbl">Siguientes</span>
+            <div class="onion-steps" id="onion-next-btns">
+              <button class="step-btn active" data-val="0">0</button>
+              <button class="step-btn" data-val="1">1</button>
+              <button class="step-btn" data-val="2">2</button>
+              <button class="step-btn" data-val="3">3</button>
+            </div>
+          </div>
+          <div class="onion-row">
+            <span class="onion-lbl">Opacidad</span>
+            <input type="range" id="onion-opacity-sl" min="10" max="80" value="40">
+            <span id="onion-opacity-val">40%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <aside id="right-panel">
+      <div class="panel-card">
+        <div class="card-header">
+          <span class="card-title">Capas</span>
+          <div class="card-header-actions">
+            <button class="card-icon-btn" id="btn-layer-up" title="Subir"><span data-icon="up"></span></button>
+            <button class="card-icon-btn" id="btn-layer-dn" title="Bajar"><span data-icon="down"></span></button>
+            <button class="card-icon-btn" id="btn-layer-dup" title="Duplicar"><span data-icon="copy"></span></button>
+            <button class="card-icon-btn" id="btn-layer-del" title="Eliminar"><span data-icon="trash"></span></button>
+            <button class="card-icon-btn" id="btn-add-butter" title="Capa Mantequilla"><span data-icon="layers"></span></button>
+            <button class="card-icon-btn primary" id="btn-add-layer" title="Nueva capa"><span data-icon="plus"></span></button>
+          </div>
+        </div>
+        <div id="layers-list"></div>
+      </div>
+      <div class="panel-card">
+        <div class="card-header">
+          <span class="card-title">Colores</span>
+          <button class="card-icon-btn primary" id="btn-open-picker" title="Selector"><span data-icon="plus"></span></button>
+        </div>
+        <div class="card-body">
+          <div id="recent-colors-row">
+            <span class="recent-lbl">Recientes</span>
+            <div id="recent-swatches"></div>
+          </div>
+          <div id="color-swatches-grid"></div>
+          <div class="hex-row">
+            <span class="hex-hash">#</span>
+            <input type="text" id="hex-input" maxlength="6" placeholder="B8A7E8" spellcheck="false" autocomplete="off">
+            <button id="btn-hex-ok">OK</button>
+          </div>
+          <div class="rgb-row">
+            <label>R</label><input type="number" id="rgb-r" min="0" max="255" value="184">
+            <label>G</label><input type="number" id="rgb-g" min="0" max="255" value="167">
+            <label>B</label><input type="number" id="rgb-b" min="0" max="255" value="232">
+          </div>
+          <input type="color" id="full-color-picker" value="#B8A7E8">
+        </div>
+      </div>
+    </aside>
+
+    <aside id="assistant-panel">
+      <div class="asst-header">
+        <span class="asst-title">Asistente Lazurik</span>
+        <button id="btn-close-asst">✕</button>
+      </div>
+      <div class="asst-mascot-area">
+        <div class="mascot-mini">
+          <div class="mm-eye mm-l"></div>
+          <div class="mm-eye mm-r"></div>
+          <div class="mm-mouth"></div>
+          <div class="mm-blush mm-bl-l"></div>
+          <div class="mm-blush mm-bl-r"></div>
+        </div>
+      </div>
+      <div id="chat-messages"></div>
+      <div class="chat-quick-row" id="chat-quick"></div>
+      <div class="chat-input-row">
+        <input type="text" id="chat-input" placeholder="Escribe tu pregunta…" autocomplete="off">
+        <button id="btn-chat-send">➤</button>
+      </div>
+    </aside>
+
+  </div>
+</div>
+
+<!-- ══════ MODALES ══════ -->
+
+<!-- Configuración -->
+<div id="modal-settings" class="modal hidden">
+  <div class="modal-box settings-box">
+    <div class="settings-hdr">
+      <h3>Configuración</h3>
+      <button data-close="modal-settings" class="modal-close-x">✕</button>
+    </div>
+    <div class="stabs">
+      <button class="stab active" data-tab="apariencia">Apariencia</button>
+      <button class="stab" data-tab="editor">Editor</button>
+      <button class="stab" data-tab="animacion">Animación</button>
+    </div>
+    <div id="stab-apariencia" class="stab-panel active">
+      <div class="setting-group">
+        <div class="setting-label">Modo de interfaz</div>
+        <div class="theme-opts">
+          <label class="theme-opt"><input type="radio" name="theme-radio" value="light" checked><span class="theme-opt-box">☀ Claro</span></label>
+          <label class="theme-opt"><input type="radio" name="theme-radio" value="dark"><span class="theme-opt-box">Oscuro</span></label>
+          <label class="theme-opt"><input type="radio" name="theme-radio" value="custom"><span class="theme-opt-box">Personalizable</span></label>
+        </div>
+      </div>
+      <div id="custom-theme-fields" class="hidden">
+        <div class="setting-group">
+          <div class="setting-label">Personalizar colores</div>
+          <div class="cc-grid">
+            <div class="cc-item"><label>Color principal</label><div class="color-field-row"><input type="color" id="t-primary-pick" value="#B8A7E8"><input type="text" id="t-primary-hex" value="B8A7E8" maxlength="6"></div></div>
+            <div class="cc-item"><label>Color secundario</label><div class="color-field-row"><input type="color" id="t-secondary-pick" value="#F3B6CE"><input type="text" id="t-secondary-hex" value="F3B6CE" maxlength="6"></div></div>
+            <div class="cc-item"><label>Fondo</label><div class="color-field-row"><input type="color" id="t-bg-pick" value="#F4F3F7"><input type="text" id="t-bg-hex" value="F4F3F7" maxlength="6"></div></div>
+            <div class="cc-item"><label>Paneles</label><div class="color-field-row"><input type="color" id="t-panel-pick" value="#FFFFFF"><input type="text" id="t-panel-hex" value="FFFFFF" maxlength="6"></div></div>
+          </div>
+        </div>
+        <div class="setting-group">
+          <div class="setting-label">Tipografía</div>
+          <div id="font-picker-grid"></div>
+        </div>
+        <div class="setting-actions">
+          <button id="btn-theme-reset" class="btn-cancel">Restaurar predeterminados</button>
+          <button id="btn-theme-apply" class="btn-primary">Aplicar</button>
+        </div>
+      </div>
+    </div>
+    <div id="stab-editor" class="stab-panel hidden">
+      <div class="setting-group">
+        <div class="setting-label">Tamaño de lienzo predeterminado</div>
+        <div class="size-row">
+          <input type="number" id="def-w" value="800" min="50" max="4000">
+          <span class="size-x">×</span>
+          <input type="number" id="def-h" value="500" min="50" max="4000">
+          <span class="size-px">px</span>
+        </div>
+      </div>
+      <div class="setting-group">
+        <div class="setting-label">Mostrar animación de inicio</div>
+        <label class="toggle-sw"><input type="checkbox" id="setting-splash" checked><span class="toggle-track"></span></label>
+      </div>
+    </div>
+    <div id="stab-animacion" class="stab-panel hidden">
+      <div class="setting-group">
+        <div class="setting-label">FPS por defecto</div>
+        <select id="setting-fps">
+          <option value="4">4 FPS</option>
+          <option value="8">8 FPS</option>
+          <option value="12" selected>12 FPS</option>
+          <option value="24">24 FPS</option>
+          <option value="30">30 FPS</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions"><button class="btn-primary" data-close="modal-settings">Cerrar</button></div>
+  </div>
+</div>
+
+<!-- Nuevo dibujo -->
+<div id="modal-start-dibujo" class="modal hidden">
+  <div class="modal-box">
+    <h3>Nuevo dibujo</h3>
+    <p class="modal-desc">Elige el tamaño del lienzo:</p>
+    <div class="preset-grid" id="pg-dibujo">
+      <button class="preset-btn" data-w="512" data-h="512">512 × 512</button>
+      <button class="preset-btn" data-w="800" data-h="600">800 × 600</button>
+      <button class="preset-btn" data-w="1280" data-h="720">1280 × 720</button>
+      <button class="preset-btn" data-w="1920" data-h="1080">1920 × 1080</button>
+    </div>
+    <div class="modal-field"><label>Personalizado</label>
+      <div class="size-row"><input type="number" id="sd-w" value="800" min="50" max="4000"><span class="size-x">×</span><input type="number" id="sd-h" value="500" min="50" max="4000"><span class="size-px">px</span></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" data-close="modal-start-dibujo">Cancelar</button>
+      <button class="btn-primary" id="btn-sd-apply">Crear dibujo</button>
+    </div>
+  </div>
+</div>
+
+<!-- Nueva animación -->
+<div id="modal-start-anim" class="modal hidden">
+  <div class="modal-box">
+    <h3>Nueva animación</h3>
+    <div class="preset-grid" id="pg-anim">
+      <button class="preset-btn" data-w="512" data-h="512">512 × 512</button>
+      <button class="preset-btn" data-w="800" data-h="600">800 × 600</button>
+      <button class="preset-btn" data-w="1280" data-h="720">1280 × 720</button>
+      <button class="preset-btn" data-w="1920" data-h="1080">1920 × 1080</button>
+    </div>
+    <div class="modal-field"><label>Tamaño</label>
+      <div class="size-row"><input type="number" id="sa-w" value="800" min="50" max="4000"><span class="size-x">×</span><input type="number" id="sa-h" value="500" min="50" max="4000"><span class="size-px">px</span></div>
+    </div>
+    <div class="modal-field"><label>FPS</label>
+      <select id="sa-fps"><option value="4">4</option><option value="8">8</option><option value="12" selected>12</option><option value="24">24</option><option value="30">30</option></select>
+    </div>
+    <div class="modal-field"><label>Fotogramas iniciales</label><input type="number" id="sa-frames" value="4" min="1" max="100"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" data-close="modal-start-anim">Cancelar</button>
+      <button class="btn-primary" id="btn-sa-apply">Crear animación</button>
+    </div>
+  </div>
+</div>
+
+<!-- Nuevo proyecto desde menú -->
+<div id="modal-nuevo" class="modal hidden">
+  <div class="modal-box">
+    <h3>Nuevo proyecto</h3>
+    <div class="preset-grid" id="pg-nuevo">
+      <button class="preset-btn" data-w="512" data-h="512">512 × 512</button>
+      <button class="preset-btn" data-w="800" data-h="600">800 × 600</button>
+      <button class="preset-btn" data-w="1280" data-h="720">1280 × 720</button>
+      <button class="preset-btn" data-w="1920" data-h="1080">1920 × 1080</button>
+    </div>
+    <div class="modal-field"><label>Personalizado</label>
+      <div class="size-row"><input type="number" id="nuevo-w" value="800" min="50" max="4000"><span class="size-x">×</span><input type="number" id="nuevo-h" value="500" min="50" max="4000"><span class="size-px">px</span></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" data-close="modal-nuevo">Cancelar</button>
+      <button class="btn-primary" id="btn-nuevo-apply">Crear proyecto</button>
+    </div>
+  </div>
+</div>
+
+<!-- Propiedades -->
+<div id="modal-props" class="modal hidden">
+  <div class="modal-box">
+    <h3>Propiedades del lienzo</h3>
+    <div class="modal-field"><label>Ancho (px)</label><input type="number" id="prop-w" value="800" min="100" max="4000"></div>
+    <div class="modal-field"><label>Alto (px)</label><input type="number" id="prop-h" value="500" min="100" max="4000"></div>
+    <p class="modal-warn">Cambiar el tamaño borrará el contenido. Para ampliar sin borrar usa "Expandir lienzo".</p>
+    <div class="modal-actions">
+      <button class="btn-cancel" data-close="modal-props">Cancelar</button>
+      <button class="btn-primary" id="btn-prop-apply">Aplicar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Expandir lienzo -->
+<div id="modal-expand" class="modal hidden">
+  <div class="modal-box">
+    <h3>Expandir lienzo</h3>
+    <p class="modal-desc">Añade espacio transparente sin borrar el dibujo.</p>
+    <div class="expand-grid">
+      <div></div>
+      <div class="modal-field"><label>Arriba</label><input type="number" id="exp-top" value="0" min="0" max="2000"></div>
+      <div></div>
+      <div class="modal-field"><label>Izquierda</label><input type="number" id="exp-left" value="0" min="0" max="2000"></div>
+      <div class="exp-center" data-icon="expand"></div>
+      <div class="modal-field"><label>Derecha</label><input type="number" id="exp-right" value="0" min="0" max="2000"></div>
+      <div></div>
+      <div class="modal-field"><label>Abajo</label><input type="number" id="exp-bottom" value="0" min="0" max="2000"></div>
+      <div></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" data-close="modal-expand">Cancelar</button>
+      <button class="btn-primary" id="btn-expand-apply">Expandir</button>
+    </div>
+  </div>
+</div>
+
+<!-- Texto -->
+<div id="modal-text" class="modal hidden">
+  <div class="modal-box">
+    <h3>Agregar texto</h3>
+    <div class="modal-field"><label>Texto</label><input type="text" id="text-val" placeholder="Escribe aquí…" autocomplete="off"></div>
+    <div class="modal-field"><label>Tamaño (px)</label><input type="number" id="text-size" value="28" min="8" max="300"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" data-close="modal-text">Cancelar</button>
+      <button class="btn-primary" id="btn-text-place">Colocar</button>
+    </div>
+  </div>
+</div>
+
+<!-- GIF progress -->
+<div id="modal-gif" class="modal hidden">
+  <div class="modal-box" style="text-align:center">
+    <h3>Generando GIF animado…</h3>
+    <div class="gif-bar"><div id="gif-fill"></div></div>
+    <p id="gif-msg">Preparando fotogramas…</p>
+  </div>
+</div>
+
+<!-- Guía de colores -->
+<div id="modal-color-guide" class="modal hidden">
+  <div class="modal-box" style="width:min(620px,96vw);max-height:88vh;overflow-y:auto">
+    <div class="settings-hdr">
+      <h3>Guía de Colores</h3>
+      <button data-close="modal-color-guide" class="modal-close-x">✕</button>
+    </div>
+    <p class="modal-desc" style="margin-bottom:12px">Haz clic en cualquier color para usarlo como color activo.</p>
+    <div id="color-guide-content"></div>
+  </div>
+</div>
+
+<!-- Viñetas -->
+<div id="modal-vinetas" class="modal hidden">
+  <div class="modal-box">
+    <h3>Insertar elemento de cómic</h3>
+    <div class="setting-label" style="margin-bottom:8px">Tipo</div>
+    <div class="vineta-type-grid">
+      <button class="preset-btn vineta-type-btn active" data-type="panel-rect">Panel rect.</button>
+      <button class="preset-btn vineta-type-btn" data-type="panel-round">Panel redon.</button>
+      <button class="preset-btn vineta-type-btn" data-type="speech">Habla</button>
+      <button class="preset-btn vineta-type-btn" data-type="thought">Pensamiento</button>
+      <button class="preset-btn vineta-type-btn" data-type="shout">Grito</button>
+    </div>
+    <div class="modal-field" id="vineta-text-field" style="margin-top:10px">
+      <label>Texto del globo</label>
+      <input type="text" id="vineta-text-input" placeholder="Escribe aquí…" autocomplete="off">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" data-close="modal-vinetas">Cancelar</button>
+      <button class="btn-primary" id="btn-vineta-insert">Insertar</button>
+    </div>
+  </div>
+</div>
+
+<script src="src/js/icons.js"></script>
+<script src="src/js/app.js"></script>
+<script src="src/js/memory.js"></script>
+<script src="src/js/storage.js"></script>
+<script src="src/js/pwa.js"></script>
+</body>
+</html>
