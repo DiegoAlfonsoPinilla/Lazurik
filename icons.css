@@ -1,0 +1,10 @@
+/* Iconos simples (trazo, un solo color) y piezas nuevas de v0.2 */
+.ico{width:1.15em;height:1.15em;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.2em;pointer-events:none}
+[data-icon]{display:inline-flex;align-items:center;justify-content:center}
+.tool-btn .ico{width:20px;height:20px}
+.so-icon .ico{width:34px;height:34px}
+.tl-btn .ico,.card-icon-btn .ico,.pb-btn .ico,.nav-icon-btn .ico{width:16px;height:16px}
+#mem-badge{font-size:11px;opacity:.75;margin-right:10px;white-space:nowrap}
+.laz-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:rgba(30,28,45,.92);color:#fff;padding:9px 16px;border-radius:8px;font-size:13px;z-index:9999}
+
+#main-canvas,#selection-canvas{touch-action:none}
